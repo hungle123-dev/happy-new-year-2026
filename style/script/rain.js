@@ -1,6 +1,18 @@
 let fullscreenRequested = false;
 let textSequenceFinished = false;
 
+// Phát hiện thiết bị tablet/iPad để tối ưu performance
+function isTablet() {
+    const ua = navigator.userAgent.toLowerCase();
+    const isIPad = /ipad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isTablet = /tablet|ipad|playbook|silk|android(?!.*mobile)/i.test(ua);
+    return isIPad || isTablet || (window.innerWidth >= 768 && window.innerWidth <= 1024);
+}
+
+// Điều chỉnh delay dựa trên thiết bị
+const TEXT_DELAY = isTablet() ? 3000 : 6000; // Giảm từ 6s xuống 3s cho tablet
+const COUNTDOWN_DELAY = isTablet() ? 1000 : 2000; // Giảm từ 2s xuống 1s cho tablet
+
 
 function requestFullScreen() {
     const el = document.documentElement;
@@ -210,7 +222,7 @@ S.UI = (function () {
                         } else {
                             S.Shape.switchShape(S.ShapeBuilder.letter(index), true);
                         }
-                    }, 2000, value, true);
+                    }, COUNTDOWN_DELAY, value, true);
                     break;
                 case 'rectangle':
                     value = value && value.split('x');
@@ -239,7 +251,7 @@ S.UI = (function () {
                 default:
                   S.Shape.switchShape(S.ShapeBuilder.letter(current[0] === cmd ? 'HacPai' : current));
             }
-        }, 6000, sequence.length);
+        }, TEXT_DELAY, sequence.length);
     }
     return {
         simulate: function (action) {
@@ -503,7 +515,9 @@ S.Shape = (function () {
                 i = 0;
             while (n.dots.length > 0) {
                 i = Math.floor(Math.random() * n.dots.length);
-                dots[d].e = fast ? 0.25 : (dots[d].s ? 0.14 : 0.11);
+                // Tăng tốc độ animation cho tablet
+                var baseSpeed = isTablet() ? 0.18 : 0.11;
+                dots[d].e = fast ? 0.25 : (dots[d].s ? 0.14 : baseSpeed);
                 if (dots[d].s) {
                     dots[d].move(new S.Point({
                         z: Math.random() * 20 + 10,
