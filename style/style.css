@@ -1,35 +1,208 @@
-html, * {
+html, body {
     height: 100vh;
+    margin: 0;
+    overflow: hidden;
 }
 body {
-    font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
-    background: #79a8ae;
+    font-family: "Helvetica Neue", sans-serif;
+    background: #050505; /* Nền đen sâu */
     color: #CFEBE4;
-    font-size: 18px;
-    line-height: 2;
-    letter-spacing: 1.2px;
-    margin: 0;
 }
-.body--ready {
-    background: black;
+
+/* --- CANVAS LAYER --- */
+canvas { position: absolute; top: 0; left: 0; }
+#rainCanvas { z-index: 1; }
+.canvas { z-index: 2; }
+#fireCanvas { z-index: 3; display: none; }
+
+/* --- LETTER SCENE --- */
+#letterScene {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(20,20,20,0.8) 0%, rgba(0,0,0,0.95) 100%);
+    z-index: 9999;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 2s ease-in-out;
 }
-canvas {
+#letterScene.show-scene { opacity: 1; pointer-events: auto; }
+
+/* --- CONTAINER --- */
+.envelope-container {
+    position: relative; cursor: pointer;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.envelope-container:hover { transform: scale(1.02); }
+
+/* Khi mở: Phong bao trượt xuống, mờ đi một chút để làm nổi bật giấy */
+.envelope-container.is-open {
+    transform: translateY(200px) scale(0.9); 
+    cursor: default;
+}
+
+/* --- PHONG BAO (ENVELOPE) --- */
+.envelope {
+    position: relative; 
+    width: 600px; height: 400px;
+    background: #2c0000; /* Màu nền tối bên trong */
+    border-radius: 5px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+}
+
+/* Mặt sau phong bao (Lớp lót bên trong) */
+.envelope-back {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #6d0a0a; /* Đỏ tối */
+    border-radius: 5px;
+}
+
+/* Nắp thư (Flap) */
+.flap {
+    position: absolute; top: 0; left: 0;
+    width: 0; height: 0;
+    border-left: 300px solid transparent; 
+    border-right: 300px solid transparent;
+    border-top: 220px solid #9e1b1b; /* Màu đỏ rượu */
+    transform-origin: top;
+    transition: transform 0.6s 0.5s, z-index 0.2s;
+    z-index: 5;
+    /* Tạo texture vải nhẹ cho nắp */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+/* Hiệu ứng đường viền nắp */
+.flap::after {
+    content: ''; position: absolute;
+    top: -210px; left: -290px; width: 580px; height: 200px;
+    border-top: 2px dashed rgba(255,255,255,0.2);
+    pointer-events: none;
+}
+
+/* Túi phong bao (Pocket - Mặt trước) */
+.pocket {
+    position: absolute; bottom: 0; left: 0;
+    width: 0; height: 0;
+    border-left: 300px solid transparent;
+    border-right: 300px solid transparent;
+    border-bottom: 250px solid #b71c1c; /* Đỏ tươi hơn nắp một chút */
+    z-index: 4;
+    filter: drop-shadow(0 -5px 10px rgba(0,0,0,0.2));
+}
+
+/* --- CON DẤU SÁP (WAX SEAL) --- */
+.wax-seal {
     position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
+    top: -110px; left: -30px; /* Căn giữa nắp tam giác */
+    width: 60px; height: 60px;
+    background: radial-gradient(circle at 30% 30%, #ffd700, #cfb53b, #8a6e05);
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    display: flex; justify-content: center; align-items: center;
+    border: 4px solid #b8860b;
+    outline: 2px dashed #ffd700;
+    outline-offset: -8px;
+    transition: transform 0.3s;
 }
-
-#rainCanvas, .canvas {
-z-index: 1;
+.wax-seal .initial {
+    font-family: 'Times New Roman', serif;
+    font-size: 32px; font-weight: bold; color: #5c3a00;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
 }
+.envelope-container:hover .wax-seal { transform: scale(1.1) rotate(10deg); }
 
-#fireCanvas {
-z-index: 2;
-display: none;
-}
-
-#fireCanvas {
+/* --- TỜ GIẤY (PAPER) --- */
+.paper {
+    position: absolute; 
+    top: 10px; left: 25px; 
+    width: 550px; height: 380px;
+    background: #fffdf5; /* Màu kem */
+    background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 100% 25px; /* Dòng kẻ */
+    
+    /* Hiệu ứng giấy cũ (Vignette) */
+    box-shadow: inset 0 0 40px rgba(139, 69, 19, 0.15), 0 2px 5px rgba(0,0,0,0.1);
+    
+    padding: 20px; box-sizing: border-box;
     z-index: 3;
-    display: none;
+    transition: transform 1s 0.6s, height 1s 0.6s;
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
 }
+
+/* Họa tiết góc giấy (Vintage Corners) */
+.paper-decoration {
+    position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border: 2px solid #d4af37; /* Viền vàng mảnh */
+    pointer-events: none;
+}
+.paper-decoration::before, .paper-decoration::after {
+    content: '❄'; /* Dùng ký tự hoa văn hoặc bông tuyết */
+    position: absolute; font-size: 24px; color: #d4af37;
+}
+.paper-decoration::before { top: -14px; left: -6px; }
+.paper-decoration::after { bottom: -14px; right: -6px; transform: rotate(180deg); }
+
+/* Nội dung bên trong */
+.paper-content {
+    opacity: 0; transition: opacity 0.8s 1.5s;
+    text-align: center; width: 100%;
+    margin-top: 10px;
+}
+
+/* KHUNG ẢNH (PHOTO FRAME) */
+.photo-frame {
+    display: inline-block;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transform: rotate(-2deg); /* Nghiêng nhẹ cho tự nhiên */
+    margin-bottom: 20px;
+}
+.letter-image {
+    width: 280px; height: 280px; /* Ảnh to */
+    object-fit: cover; 
+    display: block;
+    border: 1px solid #eee;
+}
+
+/* FONT CHỮ */
+.handwritten-font {
+    font-family: 'Pacifico', cursive; color: #4a4a4a;
+    line-height: 1.6; font-size: 22px; margin: 8px 0;
+}
+.main-title {
+    font-size: 30px; color: #b71c1c; margin-bottom: 15px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+}
+.sign-off {
+    font-weight: bold; margin-top: 25px; font-size: 24px; color: #b71c1c;
+}
+
+/* --- ANIMATION KHI CLICK MỞ --- */
+.envelope-container.is-open .flap { 
+    transform: rotateX(180deg); 
+    z-index: 1; 
+    opacity: 0.8; /* Mờ đi khi mở ra sau */
+}
+.envelope-container.is-open .wax-seal { opacity: 0; transition: opacity 0.2s; }
+
+/* Giấy bay lên */
+.envelope-container.is-open .paper { 
+    transform: translateY(-450px); /* Bay lên rất cao khỏi phong bì */
+    height: 850px; /* Kéo dài giấy */
+    z-index: 10; 
+    overflow: visible;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.envelope-container.is-open .paper-content { opacity: 1; }
+.envelope-container.is-open + .click-hint { display: none; }
+
+/* Gợi ý click */
+.click-hint {
+    color: #fff; margin-top: 40px; font-size: 16px;
+    letter-spacing: 2px; text-transform: uppercase;
+    opacity: 0.7; animation: blink 2s infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }

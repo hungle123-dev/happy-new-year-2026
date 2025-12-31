@@ -1,20 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy New Year 2026</title>
+    <title>Happy New Year 2026 - Gửi Mika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style/style.css">
 </head>
 <body>
     <canvas id="rainCanvas"></canvas>
-    <canvas class="canvas"></canvas>
+    <canvas class="canvas"></canvas> 
     <canvas id="fireCanvas"></canvas>
-    <audio id="sound" auto loop>
+
+    <audio id="sound" loop>
         <source src="./style/nhac.mp3" type="audio/mpeg" />
     </audio>
+
+    <div id="letterScene" class="hidden-scene">
+        <div class="envelope-container" onclick="openTheLetter()">
+            <div class="envelope">
+                <div class="envelope-back"></div>
+
+                <div class="paper">
+                    <div class="paper-decoration"></div>
+                    
+                    <div class="paper-content">
+                        <div class="photo-frame">
+                            <img src="./style/mika_photo.jpg" alt="Mika" class="letter-image" onerror="this.style.display='none'"> 
+                        </div>
+                        
+                        <h2 class="handwritten-font main-title">Gửi Mika,</h2>
+                        <p class="handwritten-font">Năm 2026 đã đến rồi...</p>
+                        <p class="handwritten-font">Cảm ơn em đã luôn ở bên anh. Chúc em một năm mới tràn ngập niềm vui, xinh đẹp và hạnh phúc.</p>
+                        <p class="handwritten-font sign-off">Yêu em! ❤️</p>
+                    </div>
+                </div>
+
+                <div class="flap">
+                    <div class="wax-seal">
+                        <span class="initial">M</span>
+                    </div>
+                </div>
+                
+                <div class="pocket"></div>
+            </div>
+        </div>
+        <p class="click-hint">Chạm nhẹ để mở thư...</p>
+    </div>
+
     <script src="./style/script/rain.js"></script>
     <script src="./style/script/fire.js"></script>
 </body>
-
 </html>
