@@ -515,9 +515,7 @@ S.Shape = (function () {
                 i = 0;
             while (n.dots.length > 0) {
                 i = Math.floor(Math.random() * n.dots.length);
-                // Tăng tốc độ animation cho tablet
-                var baseSpeed = isTablet() ? 0.18 : 0.11;
-                dots[d].e = fast ? 0.25 : (dots[d].s ? 0.14 : baseSpeed);
+                dots[d].e = fast ? 0.25 : (dots[d].s ? 0.14 : 0.11);
                 if (dots[d].s) {
                     dots[d].move(new S.Point({
                         z: Math.random() * 20 + 10,
